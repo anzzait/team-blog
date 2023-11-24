@@ -3,6 +3,7 @@ require("dotenv").config({
 });
 
 module.exports = {
+  pathPrefix: "/team-blog",
   siteMetadata: {
     title: `ANZZA wiki`,
     description: `ANZZA wiki`,
@@ -11,7 +12,6 @@ module.exports = {
     type: `website`,
     keywords: `ANZZA, 革バッグ, ランドセルリメイク, 東松島, バッグ, イージーオーダー, 革リメイク, 革工房, 鞄工舎`,
   },
-  pathPrefix: "/team-blog",
 
   plugins: [
     {
