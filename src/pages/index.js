@@ -6,6 +6,8 @@ import Layout from '../components/layout'
 import Hero from '../components/hero'
 import ArticlePreview from '../components/article-preview'
 
+import Seo from '../components/Seo';
+
 class RootIndex extends React.Component {
   render() {
     const posts = get(this, 'props.data.allContentfulBlogPost.nodes')
@@ -63,3 +65,7 @@ export const pageQuery = graphql`
     }
   }
 `
+
+export const Head = () => {
+  return <Seo pathname={'/'} />
+}
