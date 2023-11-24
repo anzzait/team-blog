@@ -39,11 +39,6 @@ class BlogPostTemplate extends React.Component {
 
     return (
       <Layout location={this.props.location}>
-        <Seo
-          title={post.title}
-          description={plainTextDescription}
-          image={`http:${post.heroImage.resize.src}`}
-        />
         <Hero
           image={post.heroImage?.gatsbyImage}
           title={post.title}
