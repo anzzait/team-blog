@@ -1,2 +1,3 @@
 User-agent: *
-Disallow:
+Sitemap: https://anzzait.github.io/sitemap-index.xml
+Host: https://anzzait.github.io
