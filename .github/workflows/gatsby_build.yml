@@ -3,7 +3,9 @@ name: Gatsby Build on Specific Issue Edit
 on:
   issues:
     types: [edited]
-
+  issue_comment:
+    types: [created]
+    
 env:
   TARGET_ISSUE_TITLE: "Contentful-Deployed-History" # Issue 名の定数
 
