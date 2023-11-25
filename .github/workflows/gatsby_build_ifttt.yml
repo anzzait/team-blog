@@ -1,0 +1,60 @@
+name: Gatsby Build on Specific Issue Edit
+
+on:
+  repository_dispatch:
+    types: [contentful-update-event]
+
+env:
+  TARGET_ISSUE_TITLE: "Contentful-Deployed-History" # Issue 名の定数
+
+jobs:
+  check-issue:
+    runs-on: ubuntu-latest
+    outputs:
+      is_relevant_issue: ${{ steps.filter-issue.outputs.is_relevant_issue }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Filter by Issue Title
+        id: filter-issue
+        run: |
+          ISSUE_TITLE=$(jq -r ".issue.title" $GITHUB_EVENT_PATH)
+          if [[ "$ISSUE_TITLE" == "${{ env.TARGET_ISSUE_TITLE }}" ]]; then
+            echo "Running build because the issue title is '$ISSUE_TITLE'"
+            echo "::set-output name=is_relevant_issue::true"
+          else
+            echo "Skipping build because the issue title is '$ISSUE_TITLE'"
+            echo "::set-output name=is_relevant_issue::false"
+          fi
+
+  build-and-deploy:
+    needs: check-issue
+    if: needs.check-issue.outputs.is_relevant_issue == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20.3.1' # または好みの Node.js のバージョン
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Gatsby Site
+        run: npm run build
+        env:
+          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public # Gatsby ビルドの出力ディレクトリ
