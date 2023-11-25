@@ -1,37 +1,33 @@
-name: Gatsby Build on Specific Issue Edit
+name: Gatsby Build on Specific Issue Comment
 
 on:
-  issues:
-    types: [edited]
+  issue_comment:
+    types: [created]
 
 env:
   TARGET_ISSUE_TITLE: "Contentful-Deployed-History" # Issue 名の定数
 
 jobs:
-  check-issue:
+  check-comment:
     runs-on: ubuntu-latest
+    if: github.event.issue.title == env.TARGET_ISSUE_TITLE
     outputs:
-      is_relevant_issue: ${{ steps.filter-issue.outputs.is_relevant_issue }}
+      is_relevant_comment: ${{ steps.filter-comment.outputs.is_relevant_comment }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Filter by Issue Title
-        id: filter-issue
+      - name: Filter by Comment
+        id: filter-comment
         run: |
-          ISSUE_TITLE=$(jq -r ".issue.title" $GITHUB_EVENT_PATH)
-          if [[ "$ISSUE_TITLE" == "${{ env.TARGET_ISSUE_TITLE }}" ]]; then
-            echo "Running build because the issue title is '$ISSUE_TITLE'"
-            echo "::set-output name=is_relevant_issue::true"
-          else
-            echo "Skipping build because the issue title is '$ISSUE_TITLE'"
-            echo "::set-output name=is_relevant_issue::false"
-          fi
+          COMMENT_BODY=$(jq -r ".comment.body" $GITHUB_EVENT_PATH)
+          echo "Comment body is '$COMMENT_BODY'"
+          echo "::set-output name=is_relevant_comment::true" # すべてのコメントをトリガーとして使用
 
   build-and-deploy:
-    needs: check-issue
-    if: needs.check-issue.outputs.is_relevant_issue == 'true'
+    needs: check-comment
+    if: needs.check-comment.outputs.is_relevant_comment == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -51,7 +47,6 @@ jobs:
         env:
           CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
           CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
-
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
